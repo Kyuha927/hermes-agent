@@ -1,30 +1,37 @@
 # Fill this file, then render a prompt with:
 # python examples/harnesses/gemini-31-pro-high/render_harness.py examples/harnesses/gemini-31-pro-high/task-card.yaml
 
+# This task card is for a standalone Gemini 3.1 Pro High harness.
+# The model must design, self-critique, trim, and finalize by itself.
+
 goal: >
-  Design a creative system that preserves the user's intent while avoiding over-design.
+  Design a creative system with Opus-like discipline: preserve user intent, avoid over-design, and produce a small testable final plan.
 
 current_context: >
-  Summarize only the relevant project context here. Keep it short enough that Gemini does not drown in stale conversation history.
+  Summarize only the relevant project context here. Avoid past conversation sprawl. Include only current goals, constraints, existing decisions, failures, and success criteria.
 
 invariants:
+  - Preserve the user's actual intent.
   - Do not change existing core decisions without explicit permission.
   - Do not add unrequested features.
   - Prefer the smallest MVP that can be tested.
-  - Separate observations from guesses.
-  - If information is missing, mark UNKNOWN.
+  - Separate facts, assumptions, and UNKNOWNs.
+  - If context conflicts, prioritize the latest explicit user goal.
 
 non_goals:
   - Do not implement code in this step.
-  - Do not make final technical approval.
+  - Do not delegate judgment to another model.
+  - Do not produce only brainstorming options.
   - Do not introduce a new architecture unless the current one cannot satisfy the goal.
+  - Do not optimize for impressiveness over usability.
 
 existing_decisions:
-  - Gemini is used for candidate generation, not final judgment.
-  - Validation is handled by a separate model or test harness.
+  - Gemini 3.1 Pro High must be used as a standalone design harness.
+  - The harness should emulate Opus-like intent preservation, reductive editing, and final design judgment as much as possible.
+  - External models may execute later, but this harness must produce a complete design decision on its own.
 
 pain_point: >
-  Gemini Pro High is creative but drifts when instructions are loose or the context grows too long.
+  Gemini Pro High is highly creative but may drift, over-expand, or forget constraints when the prompt is loose or the context grows long.
 
 desired_output: >
-  Three design candidates, one trimmed final MVP, a drift check, and a handoff prompt under 1000 characters.
+  Intent lock, context pruning, three design candidates, self-critique, reductive edit, one final MVP design, drift check, and an implementation handoff under 1000 characters.

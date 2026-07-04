@@ -1,0 +1,30 @@
+# Fill this file, then render a prompt with:
+# python examples/harnesses/gemini-31-pro-high/render_harness.py examples/harnesses/gemini-31-pro-high/task-card.yaml
+
+goal: >
+  Design a creative system that preserves the user's intent while avoiding over-design.
+
+current_context: >
+  Summarize only the relevant project context here. Keep it short enough that Gemini does not drown in stale conversation history.
+
+invariants:
+  - Do not change existing core decisions without explicit permission.
+  - Do not add unrequested features.
+  - Prefer the smallest MVP that can be tested.
+  - Separate observations from guesses.
+  - If information is missing, mark UNKNOWN.
+
+non_goals:
+  - Do not implement code in this step.
+  - Do not make final technical approval.
+  - Do not introduce a new architecture unless the current one cannot satisfy the goal.
+
+existing_decisions:
+  - Gemini is used for candidate generation, not final judgment.
+  - Validation is handled by a separate model or test harness.
+
+pain_point: >
+  Gemini Pro High is creative but drifts when instructions are loose or the context grows too long.
+
+desired_output: >
+  Three design candidates, one trimmed final MVP, a drift check, and a handoff prompt under 1000 characters.

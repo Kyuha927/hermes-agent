@@ -1,48 +1,42 @@
-# Gemini 3.1 Pro High Design Harness
+# Gemini 3.1 Pro High Standalone Opus-Like Harness
 
-This guide adds a strict harness for using Gemini 3.1 Pro High as a creative design candidate generator while reducing drift, over-expansion, and long-context degradation.
+This guide adds a standalone harness for using Gemini 3.1 Pro High as a single-model design system.
 
-The harness is designed for workflows where Gemini is strong at creative expansion and multimodal/long-context ingestion, but should not be trusted as the final design judge.
+The goal is not to create a multi-model workflow. The goal is to make Gemini behave more like an Opus-style designer by forcing it through stable internal phases:
+
+```text
+intent lock → context pruning → design candidates → self-critique → reductive edit → drift check → final plan
+```
+
+Use this harness when Gemini's creativity is valuable, but loose prompts cause drift, over-design, forgotten constraints, or long-context degradation.
+
+## What this harness tries to emulate
+
+Opus-like design behavior usually means:
+
+- preserving the user's actual intent
+- identifying non-goals and scope boundaries
+- resisting unnecessary architecture changes
+- choosing what to discard
+- producing a small, testable plan
+- separating assumptions from facts
+- making a final decision without pretending uncertainty vanished
+
+This harness asks Gemini to simulate those behaviors inside one response.
 
 ## Model role
 
-Use Gemini 3.1 Pro High for:
+Use Gemini 3.1 Pro High as a standalone:
 
-- creative design options
-- worldbuilding and branch expansion
-- long document, log, screenshot, or repository context digestion
-- candidate generation
-- handoff prompt creation for another execution model
+- intent interpreter
+- creative design generator
+- skeptical reviewer
+- reductive editor
+- final design planner
 
-Avoid using Gemini 3.1 Pro High as the only authority for:
+Do not require a second model for the harness to function.
 
-- final technical approval
-- destructive automation approval
-- final security judgment
-- one-shot architecture decisions without a drift check
-
-## Recommended pipeline
-
-```text
-1. Compress intent and constraints.
-2. Ask Gemini for 3 design candidates.
-3. Ask Gemini to trim its own candidates.
-4. Run a drift check against the original task card.
-5. Hand the compressed plan to an execution or validation model.
-```
-
-Best companion roles:
-
-```text
-Gemini 3.1 Pro High = creative candidate generator
-M3 or GPT-5.4       = intent compression / scope trimming
-GPT-5.5             = risk candidate finder
-GLM or DeepSeek Pro = technical blocker triage
-Opus or Fable       = final high-stakes design judgment
-Kimi                = fast implementation
-```
-
-## Task card discipline
+## Required input shape
 
 Never give Gemini a raw long chat transcript when design quality matters. Give it a task card.
 
@@ -74,42 +68,57 @@ Stop Rule:
 If information is missing, mark UNKNOWN instead of guessing.
 ```
 
+## Internal phases
+
+The harness forces Gemini through these phases:
+
+1. **Intent Lock** — restate the goal, invariants, non-goals, missing information, and success criteria.
+2. **Context Pruning** — decide what context matters now and what should be ignored.
+3. **Candidate Design** — create three distinct designs.
+4. **Opus-Style Self-Critique** — attack each design for drift, over-design, fragile assumptions, and implementation risk.
+5. **Reductive Edit** — discard 80% of nice-to-have ideas and keep the smallest viable design.
+6. **Final Plan** — pick one direction and produce a compact implementation handoff.
+7. **Drift Check** — verify that the final plan still serves the original task.
+
 ## Harness prompt
 
-Use the prompt in [`../../examples/harnesses/gemini-31-pro-high/harness.md`](../../examples/harnesses/gemini-31-pro-high/harness.md).
+Use the standalone prompt in [`../../examples/harnesses/gemini-31-pro-high/harness.md`](../../examples/harnesses/gemini-31-pro-high/harness.md).
 
-## Drift check rule
+## When to use it
 
-The drift check is mandatory. If Gemini returns `NEEDS_TRIM` or `FAIL`, do not execute the plan. Trim the plan first or send the plan to a separate validator.
+Good fits:
 
-Required drift checks:
+- creative-system design
+- architecture planning
+- worldbuilding system rules
+- automation strategy
+- product feature scoping
+- prompt/agent harness design
+- refactor planning before execution
 
-1. Does the answer directly serve the original goal?
-2. Did it violate any invariant?
-3. Did it invade a non-goal?
-4. Did it reverse an existing decision without permission?
-5. Did it add unrequested features?
-6. Can the MVP be smaller?
+Poor fits:
 
-## Practical usage in Hermes
+- direct implementation without a plan
+- security-critical final approval
+- destructive automation without human confirmation
+- very short one-off answers
 
-A useful Hermes setup is:
+## Practical usage in Hermes, Antigravity, Cline, or OpenCode
+
+Use Gemini with this harness as a **single design agent**.
+
+Recommended behavior:
 
 ```text
-router/design-agent:
-  model: Gemini 3.1 Pro High
-  role: candidate generation only
-
-validation-agent:
-  model: GLM-5.2 Max or DeepSeek V4 Pro
-  role: technical blocker triage
-
-execution-agent:
-  model: Kimi K2.7 or Gemini execution layer
-  role: implement the final handoff prompt
-
-final-review-agent:
-  model: Opus/Fable, only for high-stakes design calls
+Gemini 3.1 Pro High Standalone Harness
+= understand intent
+= design options
+= self-critique
+= trim scope
+= choose final MVP
+= produce handoff prompt
 ```
 
-Keep Gemini away from direct destructive tools unless another agent has already approved the plan.
+Then paste or route the final handoff prompt to whatever executor you prefer.
+
+The harness itself assumes no second model. It only needs a filled task card.

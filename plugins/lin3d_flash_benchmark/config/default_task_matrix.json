@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "worker_model": "Gemini 3.8 Flash (High)",
+  "worker_model": "gemini-3.8-flash-high",
   "blind_gold": true,
   "tasks": [
     {"task_id":"inventory-r1","task_class":"scene_inventory","repeat":1,"prompt":"Read the supplied R14H evidence and report object, mesh, material, UV, armature, shape-key, vertex and triangle inventory. Do not infer absent data.","evidence_paths":[],"output_contract":{"required":["objects","materials","uv_layers","armatures","shape_keys","vertices","triangles","unknowns"]}},

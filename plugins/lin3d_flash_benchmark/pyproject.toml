@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lin3d-flash-benchmark"
+version = "0.1.0"
+description = "Fail-closed ChatGPT MCP app for Codex-orchestrated Gemini Flash Blender benchmark runs."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Kyuha927" }]
+dependencies = [
+  "mcp[cli]>=1.13,<2",
+  "pydantic>=2.8,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9",
+  "ruff>=0.8,<1",
+]
+
+[project.scripts]
+lin3d-flash-benchmark = "lin3d_flash_benchmark.server:main"
+lin3d-flash-controller = "lin3d_flash_benchmark.controller:main"
+lin3d-flash-worker = "lin3d_flash_benchmark.worker:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lin3d_flash_benchmark"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

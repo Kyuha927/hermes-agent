@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "controller": {"model": "gpt-5.6-sol", "role": "Codex orchestrator"},
+  "workers": {
+    "model": "Gemini 3.8 Flash (High)",
+    "max_parallel": 8,
+    "blind_to_gold": true,
+    "isolated": true
+  },
+  "judge": {
+    "default": "Codex deterministic comparison",
+    "escalation_model": "gpt-5.6-pro",
+    "astra_allowed": false
+  },
+  "mutation": {"production_glb": false, "canon": false, "blender_scene": false},
+  "promotion": {
+    "classes": ["FLASH_ALLOWED", "FLASH_WITH_SOL_REVIEW", "SOL_ONLY"],
+    "flash_allowed_requires_all_repeats_pass": true,
+    "critical_miss_forces": "SOL_ONLY"
+  }
+}

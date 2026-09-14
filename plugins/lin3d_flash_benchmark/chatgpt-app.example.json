@@ -1,0 +1,8 @@
+{
+  "name": "LIN 3D Flash Benchmark",
+  "description": "Codex-orchestrated blind Gemini 3.8 Flash High benchmark for Blender QA.",
+  "mcp_endpoint": "https://YOUR-SECURE-MCP-TUNNEL.example/mcp",
+  "authentication": "workspace_or_tunnel_managed",
+  "recommended_permission": "ask_before_writes",
+  "default_prompt": "Run app_health, then benchmark_preflight. Never execute without an explicit user request."
+}

@@ -50,7 +50,7 @@ Prerequisites:
 
 - Codex CLI authenticated and available as `codex`.
 - Antigravity CLI authenticated and available as `agy`.
-- `agy --model 'Gemini 3.8 Flash (High)'` must pass a one-line smoke.
+- `agy models` must list `gemini-3.8-flash-high`; preflight verifies this exact route before execution.
 - The benchmark packet, task matrix, policy, schema, hidden-gold file, and evidence bundle must exist below the allowlisted root.
 - Antigravity should be configured with `enableTerminalSandbox=true` and `toolPermission=proceed-in-sandbox`; the app also forces `--sandbox` per worker.
 

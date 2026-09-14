@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 import stat
+import subprocess
 import threading
 import uuid
 from pathlib import Path
@@ -86,6 +87,38 @@ class BenchmarkService:
         )
         return result
 
+    def _probe_worker_model(self) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "enabled": self.settings.probe_worker_model,
+            "model": self.settings.flash_model,
+            "available": None,
+        }
+        if not self.settings.probe_worker_model or self.settings.worker_backend != "agy":
+            return result
+        try:
+            proc = subprocess.run(
+                [*self.settings.agy_command, "models"],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=30,
+            )
+        except Exception as exc:
+            result.update({"available": False, "error": str(exc)})
+            return result
+        output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        result.update(
+            {
+                "available": proc.returncode == 0 and self.settings.flash_model in output,
+                "return_code": proc.returncode,
+            }
+        )
+        if proc.returncode != 0:
+            result["error"] = (proc.stderr or "agy models failed")[:1000]
+        elif self.settings.flash_model not in output:
+            result["error"] = f"model slug not listed by agy models: {self.settings.flash_model}"
+        return result
+
     def preflight(self, request: StartRequest) -> PreflightReport:
         blockers: list[str] = []
         warnings: list[str] = []
@@ -126,6 +159,11 @@ class BenchmarkService:
         for command_name, available in commands.items():
             if not available:
                 blockers.append(f"missing command: {command_name}")
+        if commands.get("worker") and self.settings.worker_backend == "agy":
+            model_probe = self._probe_worker_model()
+            commands["worker_model_route"] = bool(model_probe.get("available"))
+            if self.settings.probe_worker_model and not model_probe.get("available"):
+                blockers.append(str(model_probe.get("error") or "Antigravity model route probe failed"))
         if request.max_workers > self.settings.max_workers:
             blockers.append(
                 f"requested max_workers={request.max_workers} exceeds server cap={self.settings.max_workers}"
@@ -404,6 +442,7 @@ class BenchmarkService:
             "worker_backend": self.settings.worker_backend,
             "worker_terminal_sandbox": self.settings.agy_sandbox,
             "agy_sandbox_config": self._agy_sandbox_config(),
+            "worker_model_probe_enabled": self.settings.probe_worker_model,
             "max_workers": self.settings.max_workers,
             "max_snapshot_bytes": self.settings.max_snapshot_bytes,
             "codex_available": command_available(self.settings.codex_command),

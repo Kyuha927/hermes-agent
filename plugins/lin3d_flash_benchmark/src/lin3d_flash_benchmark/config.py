@@ -41,6 +41,7 @@ class Settings:
     max_snapshot_bytes: int
     controller_model: str
     flash_model: str
+    probe_worker_model: bool
     judge_model: str
     codex_command: tuple[str, ...]
     agy_command: tuple[str, ...]
@@ -79,7 +80,8 @@ class Settings:
             max_workers=max_workers,
             max_snapshot_bytes=max_snapshot_bytes,
             controller_model=os.getenv("LIN3D_CONTROLLER_MODEL", "gpt-5.6-sol"),
-            flash_model=os.getenv("LIN3D_FLASH_MODEL", "Gemini 3.8 Flash (High)"),
+            flash_model=os.getenv("LIN3D_FLASH_MODEL", "gemini-3.8-flash-high"),
+            probe_worker_model=_env_bool("LIN3D_PROBE_WORKER_MODEL", True),
             judge_model=os.getenv("LIN3D_JUDGE_MODEL", "gpt-5.6-pro"),
             codex_command=_env_command("LIN3D_CODEX_COMMAND", ["codex"]),
             agy_command=_env_command("LIN3D_AGY_COMMAND", ["agy"]),

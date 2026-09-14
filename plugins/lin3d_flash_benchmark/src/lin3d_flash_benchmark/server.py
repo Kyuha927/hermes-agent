@@ -17,8 +17,8 @@ mcp = FastMCP(
         "Codex-controlled, fail-closed benchmark app for blind Gemini 3.8 Flash High Blender QA. "
         "It never edits the production GLB or canon. Start actions require server-side execution enablement."
     ),
-    host=settings.mcp_host,
-    port=settings.mcp_port,
+    stateless_http=True,
+    json_response=True,
 )
 
 
@@ -36,6 +36,7 @@ def benchmark_preflight(
     routing_policy: str,
     evidence_schema: str,
     hidden_gold: str,
+    evidence_bundle: str,
     max_workers: int = 8,
 ) -> dict[str, Any]:
     """Validate fixed files, commands, models, path boundaries, and concurrency; perform no benchmark."""
@@ -46,6 +47,7 @@ def benchmark_preflight(
         routing_policy=Path(routing_policy),
         evidence_schema=Path(evidence_schema),
         hidden_gold=Path(hidden_gold),
+        evidence_bundle=Path(evidence_bundle),
         max_workers=max_workers,
         execute=False,
     )
@@ -60,6 +62,7 @@ def start_flash_benchmark(
     routing_policy: str,
     evidence_schema: str,
     hidden_gold: str,
+    evidence_bundle: str,
     max_workers: int = 8,
     execute: bool = False,
     label: str = "lin-aster-r14h-flash38",
@@ -73,6 +76,7 @@ def start_flash_benchmark(
             routing_policy=Path(routing_policy),
             evidence_schema=Path(evidence_schema),
             hidden_gold=Path(hidden_gold),
+            evidence_bundle=Path(evidence_bundle),
             max_workers=max_workers,
             execute=execute,
             label=label,
@@ -105,7 +109,12 @@ def promote_routing(run_id: str, apply: bool = False) -> dict[str, Any]:
 
 
 def main() -> None:
-    mcp.run(transport="streamable-http")
+    mcp.run(
+        transport="streamable-http",
+        host=settings.mcp_host,
+        port=settings.mcp_port,
+        streamable_http_path="/mcp",
+    )
 
 
 if __name__ == "__main__":

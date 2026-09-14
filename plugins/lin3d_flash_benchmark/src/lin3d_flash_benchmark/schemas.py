@@ -30,6 +30,7 @@ class StartRequest(BaseModel):
     routing_policy: Path
     evidence_schema: Path
     hidden_gold: Path
+    evidence_bundle: Path
     max_workers: int = Field(default=8, ge=1, le=8)
     execute: bool = False
     label: str = Field(default="lin-aster-r14h-flash38", min_length=3, max_length=80)

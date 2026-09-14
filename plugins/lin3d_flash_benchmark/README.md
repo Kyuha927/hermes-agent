@@ -16,7 +16,10 @@ A fail-closed remote MCP app that reuses the existing Codex/Hermes/Antigravity/B
 - `LIN3D_ENABLE_EXECUTION=0`: preflight only.
 - `LIN3D_ENABLE_ROUTING_WRITES=0`: promotion creates a review artifact only.
 - Every supplied file must resolve under `LIN3D_ALLOWED_ROOTS`.
-- Worker processes never receive the hidden-gold path or GOLD-named environment variables.
+- Every run copies the packet, matrix, policy, schema, hidden gold, and evidence into a hash-receipted snapshot; Codex receives workspace-write only inside that run snapshot.
+- Evidence snapshots reject symbolic links, special files, empty bundles, and bundles over `LIN3D_MAX_SNAPSHOT_BYTES`.
+- Worker processes never receive the hidden-gold path or GOLD/JUDGE/controller environment variables.
+- Each Gemini worker runs in its own task directory with Antigravity `--sandbox`; only the read-only evidence snapshot is added with `--add-dir`. The app never passes `--dangerously-skip-permissions`.
 - The app accepts no shell command, executable path, model override, or arbitrary environment from ChatGPT tool input.
 - Cancellation targets only the controller process group owned by the selected run.
 - No production GLB, canon, `.blend`, Tripo credit, or account setting may be modified.
@@ -48,7 +51,8 @@ Prerequisites:
 - Codex CLI authenticated and available as `codex`.
 - Antigravity CLI authenticated and available as `agy`.
 - `agy --model 'Gemini 3.8 Flash (High)'` must pass a one-line smoke.
-- The benchmark packet, task matrix, policy, schema and hidden-gold evidence must exist below the allowlisted root.
+- The benchmark packet, task matrix, policy, schema, hidden-gold file, and evidence bundle must exist below the allowlisted root.
+- Antigravity should be configured with `enableTerminalSandbox=true` and `toolPermission=proceed-in-sandbox`; the app also forces `--sandbox` per worker.
 
 ## Run and connect to Web ChatGPT
 
@@ -65,7 +69,7 @@ Do not put a public unauthenticated endpoint on the internet. Use tunnel/workspa
 
 ```text
 @LIN 3D Flash Benchmark
-Run app_health. If healthy, preflight the R14H benchmark packet with max_workers=8.
+Run app_health. If healthy, preflight the R14H benchmark packet and evidence bundle with max_workers=8.
 Show blockers. Do not execute until I explicitly say 실행.
 ```
 
@@ -82,7 +86,7 @@ Start the preflighted benchmark with execute=true. Keep production mutation off,
 - `promotion_candidate.json`
 - `controller_receipt.json`
 
-The Codex controller is instructed to run the packaged `lin3d-flash-controller` command and then score against the hidden gold. The hidden gold is present only in the controller manifest; workers receive task prompts and explicitly listed evidence paths only.
+The Codex controller is instructed to run the packaged `lin3d-flash-controller` command and then score against the hidden gold. The hidden gold is stored under `controller_only/`; workers run in separately sandboxed task directories and receive only the immutable evidence snapshot.
 
 ## Current limitation
 

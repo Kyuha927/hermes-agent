@@ -20,7 +20,7 @@ class ControllerLaunch:
 def build_controller_launch(
     settings: Settings,
     *,
-    workspace: Path,
+    run_dir: Path,
     manifest_path: Path,
     prompt_path: Path,
 ) -> ControllerLaunch:
@@ -31,8 +31,13 @@ def build_controller_launch(
         "--model",
         settings.controller_model,
         "--json",
+        "--ephemeral",
+        "--sandbox",
+        "workspace-write",
+        "--ask-for-approval",
+        "never",
         "--cd",
-        str(workspace),
+        str(run_dir),
         prompt,
     ]
     env = os.environ.copy()
@@ -45,7 +50,7 @@ def build_controller_launch(
             "LIN3D_GOLD_VISIBLE_TO_WORKERS": "0",
         }
     )
-    return ControllerLaunch(args=args, env=env, cwd=workspace)
+    return ControllerLaunch(args=args, env=env, cwd=run_dir)
 
 
 def launch_controller(launch: ControllerLaunch, stdout_path: Path, stderr_path: Path) -> subprocess.Popen[bytes]:
